@@ -82,3 +82,41 @@
     var q=document.querySelector('.quote');q.addEventListener('mouseenter',stop);q.addEventListener('mouseleave',start);q.addEventListener('focusin',stop);
     start();
   })();
+
+
+/* Her first year: photo lightbox */
+(function(){
+  var btns=[].slice.call(document.querySelectorAll('.m-photo')),lb=document.getElementById('lightbox');
+  if(!btns.length||!lb)return;
+  var img=document.getElementById('lb-img'),cap=document.getElementById('lb-cap'),cur=0,opener=null;
+  function show(i){cur=(i+btns.length)%btns.length;var b=btns[cur];img.src=b.getAttribute('data-full');img.alt=b.querySelector('img').alt;cap.innerHTML=b.getAttribute('data-caption');}
+  btns.forEach(function(b,i){b.addEventListener('click',function(){opener=b;show(i);lb.showModal?lb.showModal():lb.setAttribute('open','')})});
+  function close(){lb.close?lb.close():lb.removeAttribute('open')}
+  lb.querySelector('.lb-close').addEventListener('click',close);
+  lb.querySelector('.lb-prev').addEventListener('click',function(){show(cur-1)});
+  lb.querySelector('.lb-next').addEventListener('click',function(){show(cur+1)});
+  lb.addEventListener('click',function(e){if(e.target===lb||e.target.classList.contains('lb-fig'))close()});
+  lb.addEventListener('keydown',function(e){if(e.key==='ArrowLeft')show(cur-1);if(e.key==='ArrowRight')show(cur+1)});
+  lb.addEventListener('close',function(){if(opener)opener.focus()});
+})();
+
+/* The Office: key areas of work tabs */
+(function(){
+  var tabs=[].slice.call(document.querySelectorAll('.o-tab'));
+  if(!tabs.length)return;
+  function select(t,focus){
+    tabs.forEach(function(x){var on=x===t;x.classList.toggle('is-on',on);x.setAttribute('aria-selected',on?'true':'false');x.tabIndex=on?0:-1;
+      document.getElementById(x.getAttribute('aria-controls')).hidden=!on;});
+    if(focus)t.focus();
+  }
+  tabs.forEach(function(t,i){
+    t.addEventListener('click',function(){select(t)});
+    t.addEventListener('keydown',function(e){
+      var n=null;
+      if(e.key==='ArrowDown'||e.key==='ArrowRight')n=tabs[(i+1)%tabs.length];
+      if(e.key==='ArrowUp'||e.key==='ArrowLeft')n=tabs[(i-1+tabs.length)%tabs.length];
+      if(e.key==='Home')n=tabs[0]; if(e.key==='End')n=tabs[tabs.length-1];
+      if(n){e.preventDefault();select(n,true);}
+    });
+  });
+})();
